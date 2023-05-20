@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -16,6 +17,8 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.DriveConstants;
 
 /** Add your docs here. */
@@ -30,9 +33,25 @@ private SparkMaxPIDController rotateController;
 private RelativeEncoder driveEncoder;
 private RelativeEncoder rotateEncoder;
 
+private AnalogInput absoluteEncoder;
+private boolean angleInverted;
+
 public SwerveModule(int driveID, int rotateID){
     driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
     rotateMotor = new CANSparkMax(rotateID, MotorType.kBrushless);
+
+    driveMotor.setIdleMode(IdleMode.kBrake);
+    rotateMotor.setIdleMode(IdleMode.kBrake);
+
+    driveEncoder = driveMotor.getEncoder();
+    driveEncoder.setPositionConversionFactor(DriveConstants.DRIVE_POSITION_CONVERSION);
+    driveEncoder.setVelocityConversionFactor(DriveConstants.DRIVE_VELOCITY_CONVERSION);
+
+    rotateEncoder = rotateMotor.getEncoder();
+    rotateEncoder.setPositionConversionFactor(DriveConstants.ROTATE_POSITION_CONVERSION);
+    rotateEncoder.setVelocityConversionFactor(DriveConstants.ROTATE_VELOCITY_CONVERSION);
+
+    absoluteEncoder = new AnalogInput(DriveConstants.CANENCODER_ID);
 
     driveController = driveMotor.getPIDController();
     rotateController = rotateMotor.getPIDController();
@@ -45,23 +64,36 @@ public SwerveModule(int driveID, int rotateID){
     rotateController.setD(DriveConstants.D_VALUE);
     rotateController.setFF(DriveConstants.FF_VALUE);
 
-    driveMotor.setIdleMode(IdleMode.kBrake);
-    rotateMotor.setIdleMode(IdleMode.kBrake);
-
-    driveEncoder = driveMotor.getEncoder();
-    driveEncoder.setPositionConversionFactor(Constants.DriveConstants.GEAR_RATIO * 2 * Math.PI);
-    driveEncoder.setVelocityConversionFactor(Constants.DriveConstants.GEAR_RATIO * 2 * Math.PI);
-
-    rotateEncoder = rotateMotor.getEncoder();
-
+    rotateController.setPositionPIDWrappingMaxInput(Math.PI);
+    rotateController.setPositionPIDWrappingMinInput(-Math.PI);
+    rotateController.getPositionPIDWrappingEnabled();
 }
 
-public void driveWithVelocity(double velocity){
-    driveMotor.set(velocity);
-}
+    public double getDrivePosition() {
+        return driveEncoder.getPosition();
+    }
 
-public void drive(double velocity){
-    driveController.setReference(velocity, ControlType.kVelocity);
-}
+    public double getRotatePosition() {
+        return rotateEncoder.getPosition();
+    }
 
+    public double getDriveVelocity() {
+        return driveEncoder.getVelocity();
+    }
+    
+    public double getRotateVelocity() {
+        return rotateEncoder.getVelocity();
+    }
+
+    public double getAbsoluteEncoderRad() {
+        double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
+        angle *= 2 * Math.PI;
+        angle -= DriveConstants.ENCODER_OFFSET;
+        return angle * (angleInverted ? -1 : 1);
+    }
+
+    public void resetEncoders() {
+        driveEncoder.setPosition(0);
+        rotateEncoder.setPosition(getAbsoluteEncoderRad());
+    }
 }

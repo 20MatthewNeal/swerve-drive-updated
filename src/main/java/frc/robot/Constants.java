@@ -19,6 +19,8 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
     
     public static final class DriveConstants{
+        public static final int CANENCODER_ID = 342; // TO DO: RETURN WHEN WE HAVE AN ACTUAL NUMBER!!!
+
         public static final double MAX_SPEED = 0.5;
 
         //PID Values for swerve modules
@@ -31,7 +33,16 @@ public final class Constants {
         public static final double TRACK_WIDTH = 1;
         public static final double BASE_LENGTH = 1.5;
 
-        public static final double GEAR_RATIO = 6.75;
+        public static final double ENCODER_OFFSET = 0; // TO DO: Update when I care
+
+        public static final double DRIVE_GEAR_RATIO = 6.75;
+        public static final double DRIVE_POSITION_CONVERSION = DRIVE_GEAR_RATIO * Math.PI * Units.inchesToMeters(3.5); // Rotations to meters
+        public static final double DRIVE_VELOCITY_CONVERSION = DRIVE_POSITION_CONVERSION / 60;
+        
+        public static final double ROTATE_GEAR_RATIO = 12.8;
+        public static final double ROTATE_POSITION_CONVERSION = ROTATE_GEAR_RATIO * Math.PI * 2; // Rotations to radians
+        public static final double ROTATE_VELOCITY_CONVERSION = ROTATE_POSITION_CONVERSION / 60;
+
         public static final double WHEEL_DIAMETER = Units.inchesToMeters(3.5);
 
         //Calculates the distance from the center using the pythagorean theorem
@@ -39,7 +50,5 @@ public final class Constants {
 
         //Calculates the angle between the x-axis and the vector
         public final static double CENTER_ANGLE = Math.atan((TRACK_WIDTH / 2) / (BASE_LENGTH / 2));
-
-
     }
 }
