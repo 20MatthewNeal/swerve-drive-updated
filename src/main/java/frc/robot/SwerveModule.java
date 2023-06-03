@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
@@ -67,6 +68,8 @@ public SwerveModule(int driveID, int rotateID){
     rotateController.setPositionPIDWrappingMaxInput(Math.PI);
     rotateController.setPositionPIDWrappingMinInput(-Math.PI);
     rotateController.getPositionPIDWrappingEnabled();
+    
+    resetEncoders();
 }
 
     public double getDrivePosition() {
@@ -95,5 +98,23 @@ public SwerveModule(int driveID, int rotateID){
     public void resetEncoders() {
         driveEncoder.setPosition(0);
         rotateEncoder.setPosition(getAbsoluteEncoderRad());
+    }
+
+    public SwerveModuleState getState(){
+        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getRotatePosition())); 
+    }
+
+    public void setDesiredState(SwerveModuleState state) {
+        if (Math.abs(state.speedMetersPerSecond) < 0.001){
+            stop();
+            return;
+        }
+        state = SwerveModuleState.optimize(state, new Rotation2d(getRotatePosition()));
+        driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_SPEED);
+    }
+
+    public void stop(){
+        driveMotor.set(0);
+        rotateMotor.set(0);
     }
 }
