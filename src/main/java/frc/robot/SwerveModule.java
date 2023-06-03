@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -72,18 +73,30 @@ public SwerveModule(int driveID, int rotateID){
     resetEncoders();
 }
 
+    /**
+     * @return meters
+     */
     public double getDrivePosition() {
         return driveEncoder.getPosition();
     }
 
+    /**
+     * @return angle (in radians)
+     */
     public double getRotatePosition() {
         return rotateEncoder.getPosition();
     }
 
+    /**
+     * @return meters
+     */
     public double getDriveVelocity() {
         return driveEncoder.getVelocity();
     }
     
+    /**
+     * @return meters
+     */
     public double getRotateVelocity() {
         return rotateEncoder.getVelocity();
     }

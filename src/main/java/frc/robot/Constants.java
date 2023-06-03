@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.opencv.core.Mat;
-
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -30,8 +28,8 @@ public final class Constants {
         //*TO DO: Reinstate separate PID vals for drive and rotate motors */
 
         //in meters
-        public static final double TRACK_WIDTH = 1;
-        public static final double BASE_LENGTH = 1.5;
+        public static final double TRACK_WIDTH = Units.inchesToMeters(29);
+        public static final double BASE_LENGTH = Units.inchesToMeters(29);
 
         public static final double ENCODER_OFFSET = 0; // TO DO: Update when I care
 
