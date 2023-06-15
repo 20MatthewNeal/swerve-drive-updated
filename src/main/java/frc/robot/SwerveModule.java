@@ -53,7 +53,7 @@ public SwerveModule(int driveID, int rotateID){
     rotateEncoder.setPositionConversionFactor(DriveConstants.ROTATE_POSITION_CONVERSION);
     rotateEncoder.setVelocityConversionFactor(DriveConstants.ROTATE_VELOCITY_CONVERSION);
 
-    absoluteEncoder = new AnalogInput(DriveConstants.CANENCODER_ID);
+    absoluteEncoder = new AnalogInput(DriveConstants.ENCODER_ID);
 
     driveController = driveMotor.getPIDController();
     rotateController = rotateMotor.getPIDController();
@@ -123,7 +123,7 @@ public SwerveModule(int driveID, int rotateID){
             return;
         }
         state = SwerveModuleState.optimize(state, new Rotation2d(getRotatePosition()));
-        driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_SPEED);
+        driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_DRIVE_SPEED);
     }
 
     public void stop(){

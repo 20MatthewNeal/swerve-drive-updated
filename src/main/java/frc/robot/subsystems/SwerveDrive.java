@@ -28,10 +28,12 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveModule backLeft;
   private SwerveModule backRight;
 
-  private SwerveDriveKinematics swerveDrive;
+  private SwerveDriveKinematics swerveKinematics;
   private SwerveDriveOdometry swerveOdometry;
   private SwerveModulePosition[] positions;
   private SwerveModuleState[] states;
+
+  private boolean fieldOriented;
 
   private AHRS gyro;
 
@@ -51,10 +53,24 @@ public class SwerveDrive extends SubsystemBase {
     backLeft = new SwerveModule(3, 7);
     backRight = new SwerveModule(4, 7);
 
-    swerveDrive = new SwerveDriveKinematics(new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
-    swerveOdometry = new SwerveDriveOdometry(swerveDrive, getRotation2d(), positions, getPose());
+    swerveKinematics = new SwerveDriveKinematics(new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
+    swerveOdometry = new SwerveDriveOdometry(swerveKinematics, getRotation2d(), positions, getPose());
+
+    fieldOriented = false;
 
     gyro = new AHRS(SPI.Port.kMXP);
+  }
+
+  public boolean getFieldOriented() {
+    return fieldOriented;
+  }
+
+  public void setFieldOriented() {
+    fieldOriented = !fieldOriented;
+  }
+
+  public void setFieldOriented(boolean condition) {
+    fieldOriented = condition;
   }
 
   public void zeroHeading() {
@@ -101,7 +117,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates){
-    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED); // Ensures that each module stays within its range of velocity
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_DRIVE_SPEED); // Ensures that each module stays within its range of velocity
     frontLeft.setDesiredState(desiredStates[0]);
     frontRight.setDesiredState(desiredStates[1]);
     backLeft.setDesiredState(desiredStates[2]);

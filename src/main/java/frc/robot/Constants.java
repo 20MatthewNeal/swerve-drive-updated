@@ -17,9 +17,10 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
     
     public static final class DriveConstants{
-        public static final int CANENCODER_ID = 342; // TO DO: RETURN WHEN WE HAVE AN ACTUAL NUMBER!!!
+        public static final int DRIVE_JOYSTICK_ID = 0;
+        public static final int ENCODER_ID = 342; // TO DO: RETURN WHEN WE HAVE AN ACTUAL NUMBER!!!
 
-        public static final double MAX_SPEED = 0.5;
+        public static final double MAX_DRIVE_SPEED = 14.5;
 
         //PID Values for swerve modules
         public static final double P_VALUE = 0.001;
@@ -37,7 +38,7 @@ public final class Constants {
         public static final double DRIVE_POSITION_CONVERSION = DRIVE_GEAR_RATIO * Math.PI * Units.inchesToMeters(3.5); // Rotations to meters
         public static final double DRIVE_VELOCITY_CONVERSION = DRIVE_POSITION_CONVERSION / 60;
         
-        public static final double ROTATE_GEAR_RATIO = 12.8;
+        public static final double ROTATE_GEAR_RATIO = 12.75;
         public static final double ROTATE_POSITION_CONVERSION = ROTATE_GEAR_RATIO * Math.PI * 2; // Rotations to radians
         public static final double ROTATE_VELOCITY_CONVERSION = ROTATE_POSITION_CONVERSION / 60;
 
