@@ -39,15 +39,7 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
-
-    // Resets the angle of the gyro at the beginning of run
-    new Thread(() -> {
-      try {
-        Thread.sleep(1000);
-        zeroHeading();
-      } catch (Exception e) {}
-    }).start();
-
+    
     frontLeft = new SwerveModule(1, 5);
     frontRight = new SwerveModule(2, 6);
     backLeft = new SwerveModule(3, 7);
@@ -59,6 +51,15 @@ public class SwerveDrive extends SubsystemBase {
     fieldOriented = false;
 
     gyro = new AHRS(SPI.Port.kMXP);
+    
+    // Resets the angle of the gyro at the beginning of run
+    new Thread(() -> {
+      try {
+        Thread.sleep(1000);
+        zeroHeading();
+      } catch (Exception e) {}
+    }).start();
+
   }
   
   public boolean getFieldOriented() {

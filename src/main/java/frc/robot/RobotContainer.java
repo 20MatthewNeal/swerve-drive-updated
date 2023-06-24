@@ -31,6 +31,8 @@ public class RobotContainer {
     joy = new Joystick(DriveConstants.DRIVE_JOYSTICK_ID);
     driveWithJoystick = new DriveWithJoystick(swerve, joy, swerve.getFieldOriented());
 
+    swerve.setDefaultCommand(driveWithJoystick);
+
     // Configure the button bindings
     configureButtonBindings();
   }
