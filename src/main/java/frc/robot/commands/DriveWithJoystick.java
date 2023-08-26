@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,6 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.SwerveDrive;
@@ -23,6 +26,7 @@ public class DriveWithJoystick extends CommandBase {
   private Joystick joy;
   private Supplier<Double> rotateSpeed;
   private boolean fieldOriented;
+  private AHRS gyro;
 
   private SlewRateLimiter xLimiter;
   private SlewRateLimiter yLimiter;
@@ -48,7 +52,11 @@ public class DriveWithJoystick extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    swerveKinematics = new SwerveDriveKinematics(new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
+    swerveKinematics = new SwerveDriveKinematics(
+      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
+      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
+      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
+      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -62,18 +70,22 @@ public class DriveWithJoystick extends CommandBase {
     ySpeed = MathUtil.applyDeadband(ySpeed, 0.15);
     rotateSpeed = MathUtil.applyDeadband(rotateSpeed, 0.15);
 
-    xSpeed = xLimiter.calculate(xSpeed);
-    ySpeed = yLimiter.calculate(rotateSpeed);
+    xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.DRIVE_VELOCITY_CONVERSION;
+    ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.DRIVE_VELOCITY_CONVERSION;
     rotateSpeed = rotateLimiter.calculate(rotateSpeed) * DriveConstants.ROTATE_VELOCITY_CONVERSION;
 
     if(swerveDrive.getFieldOriented()) {
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotateSpeed, swerveDrive.getRotation2d());      
+      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotateSpeed, gyro.getRotation2d());      
     } else {
       chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotateSpeed);
     }
 
     moduleStates = swerveKinematics.toSwerveModuleStates(chassisSpeeds);
     swerveDrive.setModuleStates(moduleStates);
+
+    SmartDashboard.putNumber("X Speed", xSpeed);
+    SmartDashboard.putNumber("Y Speed", ySpeed);
+    SmartDashboard.putNumber("Rotate Speed", rotateSpeed);
   }
 
   // Called once the command ends or is interrupted.

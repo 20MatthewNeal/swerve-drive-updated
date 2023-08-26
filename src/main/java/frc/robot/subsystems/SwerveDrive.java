@@ -30,7 +30,9 @@ public class SwerveDrive extends SubsystemBase {
 
   private SwerveDriveKinematics swerveKinematics;
   private SwerveDriveOdometry swerveOdometry;
+
   private SwerveModulePosition[] positions;
+
   private SwerveModuleState[] states;
 
   private boolean fieldOriented;
@@ -40,28 +42,65 @@ public class SwerveDrive extends SubsystemBase {
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     
-    frontLeft = new SwerveModule(1, 5);
-    frontRight = new SwerveModule(2, 6);
-    backLeft = new SwerveModule(3, 7);
-    backRight = new SwerveModule(4, 7);
+    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID);
+    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID);
+    backLeft = new SwerveModule(3, 7, DriveConstants.BACK_LEFT_ENCODER_ID);
+    backRight = new SwerveModule(4, 8, DriveConstants.BACK_RIGHT_ENCODER_ID);
 
-    swerveKinematics = new SwerveDriveKinematics(new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
-    swerveOdometry = new SwerveDriveOdometry(swerveKinematics, getRotation2d(), positions, getPose());
+    gyro = new AHRS(SPI.Port.kMXP);
+
+    positions = new SwerveModulePosition[] {
+    getModulePosition("Front Left"),
+    getModulePosition("Front Right"), 
+    getModulePosition("Back Left"), 
+    getModulePosition("Back Right")};
+
+    swerveKinematics = new SwerveDriveKinematics(
+      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
+      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
+      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
+      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
+    
+    swerveOdometry = new SwerveDriveOdometry(swerveKinematics, gyro.getRotation2d(), positions, new Pose2d(0,0, new Rotation2d(0)));
+    // Replace Rotation2d(0) with "getHeading()" once gyro is fixed!!!!
 
     fieldOriented = false;
 
-    gyro = new AHRS(SPI.Port.kMXP);
-    
-    // Resets the angle of the gyro at the beginning of run
+    //Resets the angle of the gyro at the beginning of run
     new Thread(() -> {
       try {
         Thread.sleep(1000);
         zeroHeading();
       } catch (Exception e) {}
     }).start();
-
   }
   
+  
+  public SwerveModulePosition getModulePosition(String module) {
+
+    SwerveModulePosition position;
+
+    if(module.equals("Front Left")){
+      position = new SwerveModulePosition(frontLeft.getDrivePosition(), new Rotation2d(frontLeft.getRotatePosition()));
+      return position;
+    }
+    else if(module.equals("Front Right")) {
+      position = new SwerveModulePosition(frontRight.getDrivePosition(), new Rotation2d(frontRight.getRotatePosition()));
+      return position;
+    }
+    else if(module.equals("Back Left")) {
+      position = new SwerveModulePosition(backLeft.getDrivePosition(), new Rotation2d(backLeft.getRotatePosition()));
+      return position;
+    }
+    else if(module.equals("Back Right")) {
+      position = new SwerveModulePosition(backRight.getDrivePosition(), new Rotation2d(backRight.getRotatePosition()));
+      return position;
+    }
+    
+    return null;
+    }
+
+
   public boolean getFieldOriented() {
     return fieldOriented;
   }
