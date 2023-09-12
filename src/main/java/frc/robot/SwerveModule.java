@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -33,8 +34,8 @@ public class SwerveModule {
 private CANSparkMax driveMotor;
 private CANSparkMax rotateMotor;
 
-private SparkMaxPIDController driveController;
-private SparkMaxPIDController rotateController;
+private PIDController driveController;
+private PIDController rotateController;
 
 private RelativeEncoder driveEncoder;
 private RelativeEncoder rotateEncoder;
@@ -48,12 +49,20 @@ public static EncoderOffsets currOffset = EncoderOffsets.DEFAULT;
 public static double offset;
 private Class<EncoderOffsets> type;
 
-public SwerveModule(int driveID, int rotateID, int magEncoderPort){
+public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean invertRotate, boolean invertDrive){
     driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
     rotateMotor = new CANSparkMax(rotateID, MotorType.kBrushless);
 
     driveMotor.setIdleMode(IdleMode.kBrake);
     rotateMotor.setIdleMode(IdleMode.kBrake);
+
+    if(invertRotate){
+        rotateMotor.setInverted(true);
+    }
+
+    if(invertDrive){
+        driveMotor.setInverted(true);
+    }
 
     driveEncoder = driveMotor.getEncoder();
     driveEncoder.setPositionConversionFactor(DriveConstants.DRIVE_POSITION_CONVERSION);
@@ -65,21 +74,11 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort){
 
     absoluteEncoder = new AnalogInput(magEncoderPort);
 
-    driveController = driveMotor.getPIDController();
-    rotateController = rotateMotor.getPIDController();
+    driveController = new PIDController(DriveConstants.DRIVE_P_VALUE, 0, DriveConstants.DRIVE_D_VALUE);
+    rotateController = new PIDController(DriveConstants.ROTATE_P_VALUE, DriveConstants.ROTATE_I_VALUE, 0);
 
-    driveController.setP(DriveConstants.P_VALUE);
-    driveController.setD(DriveConstants.D_VALUE);
-    driveController.setFF(DriveConstants.FF_VALUE);
-
-    rotateController.setP(DriveConstants.P_VALUE);
-    rotateController.setD(DriveConstants.D_VALUE);
-    rotateController.setFF(DriveConstants.FF_VALUE);
-
-    rotateController.setPositionPIDWrappingMaxInput(Math.PI);
-    rotateController.setPositionPIDWrappingMinInput(-Math.PI);
-    rotateController.getPositionPIDWrappingEnabled();
-
+    rotateController.enableContinuousInput(-Math.PI, Math.PI);
+    
     lastAngle = getState().angle;
 
     resetEncoder(EncoderOffsets.FRONT_LEFT);
@@ -152,46 +151,11 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort){
         return angle * (angleInverted ? -1 : 1);
     }
 
-    // public double getFrontRightAbsoluteEncoderRad() {
-    //     double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
-    //     angle *= 2 * Math.PI;
-    //     angle -= DriveConstants.FRONT_RIGHT_ENCODER_OFFSET;
-    //     return angle * (angleInverted ? -1 : 1);
-    // }
-
-    // public double getBackLeftAbsoluteEncoderRad() {
-    //     double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
-    //     angle *= 2 * Math.PI;
-    //     angle -= DriveConstants.BACK_LEFT_ENCODER_OFFSET;
-    //     return angle * (angleInverted ? -1 : 1);
-    // }
-
-    // public double getBackRightAbsoluteEncoderRad() {
-    //     double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
-    //     angle *= 2 * Math.PI;
-    //     angle -= DriveConstants.BACK_RIGHT_ENCODER_OFFSET;
-    //     return angle * (angleInverted ? -1 : 1);
-    // }
-
     public void resetEncoder(EncoderOffsets encoder) {
+        toggle(encoder);
         driveEncoder.setPosition(0);
         rotateEncoder.setPosition(getAbsoluteEncoderRad(encoder));
     }
-
-    // public void resetFrontRightEncoders() {
-    //     driveEncoder.setPosition(0);
-    //     rotateEncoder.setPosition(getFrontRightAbsoluteEncoderRad());
-    // }
-
-    // public void resetBackLeftEncoders() {
-    //     driveEncoder.setPosition(0);
-    //     rotateEncoder.setPosition(getBackLeftAbsoluteEncoderRad());
-    // }
-
-    // public void resetBackRightEncoders() {
-    //     driveEncoder.setPosition(0);
-    //     rotateEncoder.setPosition(getBackRightAbsoluteEncoderRad());
-    // }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getRotatePosition())); 
@@ -202,13 +166,14 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort){
             stop();
             return;
         }
-        state = SwerveModuleState.optimize(state, new Rotation2d(getRotatePosition()));
+        state = SwerveModuleState.optimize(state, getState().angle);
         driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_DRIVE_SPEED);
+        rotateMotor.set(rotateController.calculate(getRotatePosition(), state.angle.getRadians()));
     }
 
-    private void setAngle(SwerveModuleState desiredAngle) {
+    public void setAngle(SwerveModuleState desiredAngle) {
         Rotation2d angle = (Math.abs(desiredAngle.speedMetersPerSecond) <= DriveConstants.MAX_DRIVE_SPEED * 0.01) ? lastAngle : desiredAngle.angle;
-        rotateController.setReference(angle.getRadians(), ControlType.kPosition);
+        rotateController.setSetpoint(angle.getRadians());
         lastAngle = angle;
     }
 

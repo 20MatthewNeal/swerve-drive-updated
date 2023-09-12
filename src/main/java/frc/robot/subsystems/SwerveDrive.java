@@ -13,6 +13,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,16 +41,18 @@ public class SwerveDrive extends SubsystemBase {
 
   private AHRS gyro;
 
+  private SendableBuilder sendableBuilder;
+
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     
-    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID);
-    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID);
-    backLeft = new SwerveModule(3, 7, DriveConstants.BACK_LEFT_ENCODER_ID);
-    backRight = new SwerveModule(4, 8, DriveConstants.BACK_RIGHT_ENCODER_ID);
+    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID, true, false);
+    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID, false, false);
+    backLeft = new SwerveModule(3, 7, DriveConstants.BACK_LEFT_ENCODER_ID, false, false);
+    backRight = new SwerveModule(4, 8, DriveConstants.BACK_RIGHT_ENCODER_ID, false, false);
 
     gyro = new AHRS(SPI.Port.kMXP);
-
+    
     positions = new SwerveModulePosition[] {
     getModulePosition("Front Left"),
     getModulePosition("Front Right"), 
@@ -61,8 +65,7 @@ public class SwerveDrive extends SubsystemBase {
       new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
       new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
     
-    swerveOdometry = new SwerveDriveOdometry(swerveKinematics, gyro.getRotation2d(), positions, new Pose2d(0,0, new Rotation2d(0)));
-    // Replace Rotation2d(0) with "getHeading()" once gyro is fixed!!!!
+    swerveOdometry = new SwerveDriveOdometry(swerveKinematics, gyro.getRotation2d(), positions, new Pose2d(0,0, new Rotation2d(getHeading())));
 
     fieldOriented = false;
 
@@ -140,7 +143,16 @@ public class SwerveDrive extends SubsystemBase {
     backRight.stop();
   }
 
+  public void setModuleStates(SwerveModuleState[] desiredStates){
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_DRIVE_SPEED); // Ensures that each module stays within its range of velocity
+    frontLeft.setDesiredState(desiredStates[0]);
+    frontRight.setDesiredState(desiredStates[1]);
+    backLeft.setDesiredState(desiredStates[2]);
+    backRight.setDesiredState(desiredStates[3]);
+  }
+
   public SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] positions = {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
     positions[0] = new SwerveModulePosition(frontLeft.getDrivePosition(), new Rotation2d(frontLeft.getRotatePosition()));
     positions[1] = new SwerveModulePosition(frontRight.getDrivePosition(), new Rotation2d(frontRight.getRotatePosition()));
     positions[2] = new SwerveModulePosition(backLeft.getDrivePosition(), new Rotation2d(backLeft.getRotatePosition()));
@@ -149,6 +161,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] states = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     states[0] = new SwerveModuleState(frontLeft.getDriveVelocity(), new Rotation2d(frontLeft.getRotatePosition()));
     states[1] = new SwerveModuleState(frontRight.getDriveVelocity(), new Rotation2d(frontLeft.getRotatePosition()));
     states[2] = new SwerveModuleState(backLeft.getDriveVelocity(), new Rotation2d(backLeft.getRotatePosition()));
@@ -156,12 +169,14 @@ public class SwerveDrive extends SubsystemBase {
     return states;
   }
 
-  public void setModuleStates(SwerveModuleState[] desiredStates){
-    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_DRIVE_SPEED); // Ensures that each module stays within its range of velocity
-    frontLeft.setDesiredState(desiredStates[0]);
-    frontRight.setDesiredState(desiredStates[1]);
-    backLeft.setDesiredState(desiredStates[2]);
-    backRight.setDesiredState(desiredStates[3]);
+
+
+  public void getEncoderVals(SendableBuilder sendableBuilder) {
+    sendableBuilder.setSmartDashboardType("Encoder Values");
+    sendableBuilder.addDoubleProperty("Front Left", () -> frontLeft.getRotatePosition(), null);
+    sendableBuilder.addDoubleProperty("Front Right", () -> frontRight.getRotatePosition(), null);
+    sendableBuilder.addDoubleProperty("Back Left", () -> backLeft.getRotatePosition(), null);
+    sendableBuilder.addDoubleProperty("Back Right", () -> backRight.getRotatePosition(), null);
   }
 
   @Override

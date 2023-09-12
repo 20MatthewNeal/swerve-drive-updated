@@ -44,7 +44,7 @@ public class DriveWithJoystick extends CommandBase {
 
     this.xLimiter = new SlewRateLimiter(DriveConstants.MAX_DRIVE_SPEED);
     this.yLimiter = new SlewRateLimiter(DriveConstants.MAX_DRIVE_SPEED);
-    this.rotateLimiter = new SlewRateLimiter(0);
+    this.rotateLimiter = new SlewRateLimiter(Math.PI);
 
     addRequirements(swerveDrive);
   }
@@ -64,7 +64,7 @@ public class DriveWithJoystick extends CommandBase {
   public void execute() {
     double xSpeed = joy.getX();
     double ySpeed = joy.getY();
-    double rotateSpeed = joy.getDirectionDegrees();
+    double rotateSpeed = joy.getDirectionDegrees() / 360;
 
     xSpeed = MathUtil.applyDeadband(xSpeed, 0.15);
     ySpeed = MathUtil.applyDeadband(ySpeed, 0.15);
@@ -72,7 +72,7 @@ public class DriveWithJoystick extends CommandBase {
 
     xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.DRIVE_VELOCITY_CONVERSION;
     ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.DRIVE_VELOCITY_CONVERSION;
-    rotateSpeed = rotateLimiter.calculate(rotateSpeed) * DriveConstants.ROTATE_VELOCITY_CONVERSION;
+    rotateSpeed = rotateSpeed * DriveConstants.ROTATE_VELOCITY_CONVERSION;
 
     if(swerveDrive.getFieldOriented()) {
       chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotateSpeed, gyro.getRotation2d());      
