@@ -53,10 +53,11 @@ public class DriveWithJoystick extends CommandBase {
   @Override
   public void initialize() {
     swerveKinematics = new SwerveDriveKinematics(
-      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
-      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
-      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
-      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
+      new Translation2d(DriveConstants.DIST_FROM_CENTER, -DriveConstants.DIST_FROM_CENTER),
+      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.DIST_FROM_CENTER),
+      new Translation2d(-DriveConstants.DIST_FROM_CENTER, -DriveConstants.DIST_FROM_CENTER),
+      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.DIST_FROM_CENTER));
+      
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -83,9 +84,10 @@ public class DriveWithJoystick extends CommandBase {
     moduleStates = swerveKinematics.toSwerveModuleStates(chassisSpeeds);
     swerveDrive.setModuleStates(moduleStates);
 
-    SmartDashboard.putNumber("X Speed", xSpeed);
-    SmartDashboard.putNumber("Y Speed", ySpeed);
-    SmartDashboard.putNumber("Rotate Speed", rotateSpeed);
+    SmartDashboard.putNumber("Chassis x-speed", chassisSpeeds.vxMetersPerSecond);
+    SmartDashboard.putNumber("Chassis y-speed", chassisSpeeds.vyMetersPerSecond);
+    SmartDashboard.putNumber("Chassis rotate-speed", chassisSpeeds.omegaRadiansPerSecond);
+
   }
 
   // Called once the command ends or is interrupted.

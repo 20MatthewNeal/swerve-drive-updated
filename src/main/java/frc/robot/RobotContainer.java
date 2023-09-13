@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,6 +29,7 @@ public class RobotContainer {
 
   private SwerveDrive swerve;
   private SwerveModule swervemod;
+  private Sendable swerveSend;
 
   private Joystick joy;
   private DriveWithJoystick driveWithJoystick;
@@ -44,8 +47,9 @@ public class RobotContainer {
     swerve.setDefaultCommand(driveWithJoystick);
 
     setAngle = new SetAngle(swervemod, swerve);
-
+    
     SmartDashboard.putData(swerve);
+    
     // Configure the button bindings
     configureButtonBindings();
   }

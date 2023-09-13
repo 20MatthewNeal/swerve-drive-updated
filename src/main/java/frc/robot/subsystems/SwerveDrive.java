@@ -163,15 +163,15 @@ public class SwerveDrive extends SubsystemBase {
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     states[0] = new SwerveModuleState(frontLeft.getDriveVelocity(), new Rotation2d(frontLeft.getRotatePosition()));
-    states[1] = new SwerveModuleState(frontRight.getDriveVelocity(), new Rotation2d(frontLeft.getRotatePosition()));
+    states[1] = new SwerveModuleState(frontRight.getDriveVelocity(), new Rotation2d(frontRight.getRotatePosition()));
     states[2] = new SwerveModuleState(backLeft.getDriveVelocity(), new Rotation2d(backLeft.getRotatePosition()));
     states[3] = new SwerveModuleState(backRight.getDriveVelocity(), new Rotation2d(backRight.getRotatePosition()));
     return states;
   }
 
 
-
-  public void getEncoderVals(SendableBuilder sendableBuilder) {
+  @Override
+  public void initSendable(SendableBuilder sendableBuilder) {
     sendableBuilder.setSmartDashboardType("Encoder Values");
     sendableBuilder.addDoubleProperty("Front Left", () -> frontLeft.getRotatePosition(), null);
     sendableBuilder.addDoubleProperty("Front Right", () -> frontRight.getRotatePosition(), null);

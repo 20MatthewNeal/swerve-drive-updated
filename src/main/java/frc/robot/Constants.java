@@ -31,7 +31,7 @@ public final class Constants {
         // public static final double DRIVE_FF_VALUE = 0.001;
         public static final double DRIVE_D_VALUE = 0.001;
 
-        public static final double ROTATE_P_VALUE = 0.01;
+        public static final double ROTATE_P_VALUE = 0.5;
         public static final double ROTATE_I_VALUE = 0.015;
         public static final double ROTATE_D_VALUE = 0.001;
         //*TO DO: Reinstate separate PID vals for drive and rotate motors */
@@ -45,13 +45,13 @@ public final class Constants {
         public static final double BACK_LEFT_ENCODER_OFFSET = 3.1;
         public static final double BACK_RIGHT_ENCODER_OFFSET = 3.9;
 
-        public static final double DRIVE_GEAR_RATIO = 6.75;
+        public static final double DRIVE_GEAR_RATIO = 1 / 6.75;
         public static final double DRIVE_POSITION_CONVERSION = DRIVE_GEAR_RATIO * Math.PI * Units.inchesToMeters(3.5); // Rotations to meters
-        public static final double DRIVE_VELOCITY_CONVERSION = DRIVE_POSITION_CONVERSION / 10;
+        public static final double DRIVE_VELOCITY_CONVERSION = DRIVE_POSITION_CONVERSION / 10;//WHAT???????????!!!!!????
         
-        public static final double ROTATE_GEAR_RATIO = 12.75;
+        public static final double ROTATE_GEAR_RATIO = 1 / 12.75;
         public static final double ROTATE_POSITION_CONVERSION = ROTATE_GEAR_RATIO * Math.PI * 2; // Rotations to radians
-        public static final double ROTATE_VELOCITY_CONVERSION = ROTATE_POSITION_CONVERSION / 10;
+        public static final double ROTATE_VELOCITY_CONVERSION = ROTATE_POSITION_CONVERSION / 10;//Also. . . . WHAT???????????!!!!!????
 
         public static final double WHEEL_DIAMETER = Units.inchesToMeters(3.5);
         public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * (WHEEL_DIAMETER / 2.0);
