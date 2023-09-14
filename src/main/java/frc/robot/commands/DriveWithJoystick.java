@@ -42,38 +42,31 @@ public class DriveWithJoystick extends CommandBase {
     this.joy = joy;
     this.fieldOriented = fieldOriented;
 
-    this.xLimiter = new SlewRateLimiter(DriveConstants.MAX_DRIVE_SPEED);
-    this.yLimiter = new SlewRateLimiter(DriveConstants.MAX_DRIVE_SPEED);
-    this.rotateLimiter = new SlewRateLimiter(Math.PI);
+    this.xLimiter = new SlewRateLimiter(3);
+    this.yLimiter = new SlewRateLimiter(3);
+    this.rotateLimiter = new SlewRateLimiter(3);
 
     addRequirements(swerveDrive);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    swerveKinematics = new SwerveDriveKinematics(
-      new Translation2d(DriveConstants.DIST_FROM_CENTER, -DriveConstants.DIST_FROM_CENTER),
-      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.DIST_FROM_CENTER),
-      new Translation2d(-DriveConstants.DIST_FROM_CENTER, -DriveConstants.DIST_FROM_CENTER),
-      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.DIST_FROM_CENTER));
-      
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     double xSpeed = joy.getX();
     double ySpeed = joy.getY();
-    double rotateSpeed = joy.getDirectionDegrees() / 360;
+    double rotateSpeed = joy.getRawAxis(3);
 
     xSpeed = MathUtil.applyDeadband(xSpeed, 0.15);
     ySpeed = MathUtil.applyDeadband(ySpeed, 0.15);
     rotateSpeed = MathUtil.applyDeadband(rotateSpeed, 0.15);
 
-    xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.DRIVE_VELOCITY_CONVERSION;
-    ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.DRIVE_VELOCITY_CONVERSION;
-    rotateSpeed = rotateSpeed * DriveConstants.ROTATE_VELOCITY_CONVERSION;
+    xSpeed = xLimiter.calculate(xSpeed) * (DriveConstants.MAX_DRIVE_SPEED / 4);
+    ySpeed = yLimiter.calculate(ySpeed) * (DriveConstants.MAX_DRIVE_SPEED / 4);
+    rotateSpeed = rotateLimiter.calculate(rotateSpeed) * (DriveConstants.MAX_ROTATE_SPEED / 4);
 
     if(swerveDrive.getFieldOriented()) {
       chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotateSpeed, gyro.getRotation2d());      
@@ -81,7 +74,7 @@ public class DriveWithJoystick extends CommandBase {
       chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotateSpeed);
     }
 
-    moduleStates = swerveKinematics.toSwerveModuleStates(chassisSpeeds);
+    moduleStates = DriveConstants.swerveKinematics.toSwerveModuleStates(chassisSpeeds);
     swerveDrive.setModuleStates(moduleStates);
 
     SmartDashboard.putNumber("Chassis x-speed", chassisSpeeds.vxMetersPerSecond);

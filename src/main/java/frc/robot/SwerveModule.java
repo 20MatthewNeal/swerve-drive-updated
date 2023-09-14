@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 
 /** Add your docs here. */
@@ -34,35 +35,31 @@ public class SwerveModule {
 private CANSparkMax driveMotor;
 private CANSparkMax rotateMotor;
 
-private PIDController driveController;
-private PIDController rotateController;
-
 private RelativeEncoder driveEncoder;
 private RelativeEncoder rotateEncoder;
 
+private PIDController rotateController;
+
 private AnalogInput absoluteEncoder;
-private boolean angleInverted;
+private boolean absoluteEncoderReverse;
+
+private double encoderOffset;
 
 private Rotation2d lastAngle;
 
-public static EncoderOffsets currOffset = EncoderOffsets.DEFAULT;
 public static double offset;
-private Class<EncoderOffsets> type;
 
-public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean invertRotate, boolean invertDrive){
+public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean invertRotate, boolean invertDrive, double encoderOffset){
+    
     driveMotor = new CANSparkMax(driveID, MotorType.kBrushless);
     rotateMotor = new CANSparkMax(rotateID, MotorType.kBrushless);
 
     driveMotor.setIdleMode(IdleMode.kBrake);
     rotateMotor.setIdleMode(IdleMode.kBrake);
+    rotateMotor.setInverted(invertRotate);
+    driveMotor.setInverted(invertDrive);
 
-    if(invertRotate){
-        rotateMotor.setInverted(true);
-    }
-
-    if(invertDrive){
-        driveMotor.setInverted(true);
-    }
+    this.encoderOffset = encoderOffset;
 
     driveEncoder = driveMotor.getEncoder();
     driveEncoder.setPositionConversionFactor(DriveConstants.DRIVE_POSITION_CONVERSION);
@@ -74,47 +71,14 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
 
     absoluteEncoder = new AnalogInput(magEncoderPort);
 
-    driveController = new PIDController(DriveConstants.DRIVE_P_VALUE, 0, DriveConstants.DRIVE_D_VALUE);
-    rotateController = new PIDController(DriveConstants.ROTATE_P_VALUE, DriveConstants.ROTATE_I_VALUE, 0);
-
+    rotateController = new PIDController(DriveConstants.ROTATE_P_VALUE, DriveConstants.ROTATE_I_VALUE, DriveConstants.ROTATE_D_VALUE);
     rotateController.enableContinuousInput(-Math.PI, Math.PI);
     
-    lastAngle = getState().angle;
+    // lastAngle = getState().angle;
 
-    resetEncoder(EncoderOffsets.FRONT_LEFT);
-    resetEncoder(EncoderOffsets.FRONT_RIGHT);
-    resetEncoder(EncoderOffsets.BACK_LEFT);
-    resetEncoder(EncoderOffsets.BACK_RIGHT);
+    resetEncoder();
 }
 
-    public enum EncoderOffsets{
-        FRONT_LEFT(DriveConstants.FRONT_LEFT_ENCODER_OFFSET),
-        FRONT_RIGHT(DriveConstants.FRONT_RIGHT_ENCODER_OFFSET),
-        BACK_LEFT(DriveConstants.BACK_LEFT_ENCODER_OFFSET),
-        BACK_RIGHT(DriveConstants.BACK_RIGHT_ENCODER_OFFSET),
-        DEFAULT(0.0);
-
-        public double encoderVals;
-
-        private EncoderOffsets(double offset){
-            this.encoderVals = offset;
-            }
-        }
-
-    public void toggle(EncoderOffsets e){
-        switch(e){
-            case FRONT_LEFT:
-                currOffset = EncoderOffsets.FRONT_LEFT;
-            case FRONT_RIGHT:
-                currOffset = EncoderOffsets.FRONT_RIGHT;
-            case BACK_LEFT:
-                currOffset = EncoderOffsets.BACK_LEFT;
-            case BACK_RIGHT:
-                currOffset = EncoderOffsets.BACK_RIGHT;
-            default: 
-                currOffset = EncoderOffsets.DEFAULT;
-        }
-    }
     /**
      * @return meters
      */
@@ -130,7 +94,7 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
     }
 
     /**
-     * @return meters
+     * @return meters / sec
      */
     public double getDriveVelocity() {
         return driveEncoder.getVelocity();
@@ -143,18 +107,16 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
         return rotateEncoder.getVelocity();
     }
 
-    public double getAbsoluteEncoderRad(EncoderOffsets encoder) {
-        toggle(encoder);
+    public double getAbsoluteEncoderRad() {
         double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
         angle *= 2 * Math.PI;
-        angle -= currOffset.encoderVals;
-        return angle * (angleInverted ? -1 : 1);
+        angle -= encoderOffset;
+        return angle * (absoluteEncoderReverse ? -1.0 : 1.0);
     }
 
-    public void resetEncoder(EncoderOffsets encoder) {
-        toggle(encoder);
+    public void resetEncoder() {
         driveEncoder.setPosition(0);
-        rotateEncoder.setPosition(getAbsoluteEncoderRad(encoder));
+        rotateEncoder.setPosition(getAbsoluteEncoderRad());
     }
 
     public SwerveModuleState getState() {
@@ -169,6 +131,7 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
         state = SwerveModuleState.optimize(state, getState().angle);
         driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_DRIVE_SPEED);
         rotateMotor.set(rotateController.calculate(getRotatePosition(), state.angle.getRadians()));
+        SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", state.toString());
     }
 
     public void setAngle(SwerveModuleState desiredAngle) {

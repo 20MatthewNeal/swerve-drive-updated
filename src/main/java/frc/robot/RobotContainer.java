@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DriveWithJoystick;
-import frc.robot.commands.SetAngle;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,13 +27,9 @@ import frc.robot.commands.SetAngle;
 public class RobotContainer {
 
   private SwerveDrive swerve;
-  private SwerveModule swervemod;
-  private Sendable swerveSend;
 
   private Joystick joy;
   private DriveWithJoystick driveWithJoystick;
-  private JoystickButton setAngleButton;
-  private SetAngle setAngle;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -42,12 +37,9 @@ public class RobotContainer {
     swerve = new SwerveDrive();
     joy = new Joystick(DriveConstants.DRIVE_JOYSTICK_ID);
     driveWithJoystick = new DriveWithJoystick(swerve, joy, swerve.getFieldOriented());
-    setAngleButton = new JoystickButton(joy, 4);
 
     swerve.setDefaultCommand(driveWithJoystick);
 
-    setAngle = new SetAngle(swervemod, swerve);
-    
     SmartDashboard.putData(swerve);
     
     // Configure the button bindings
@@ -60,9 +52,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
-    setAngleButton.onTrue(setAngle);
-  }
+  private void configureButtonBindings() {}
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -30,11 +30,9 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveModule backLeft;
   private SwerveModule backRight;
 
-  private SwerveDriveKinematics swerveKinematics;
   private SwerveDriveOdometry swerveOdometry;
 
   private SwerveModulePosition[] positions;
-
   private SwerveModuleState[] states;
 
   private boolean fieldOriented;
@@ -46,10 +44,10 @@ public class SwerveDrive extends SubsystemBase {
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     
-    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID, true, false);
-    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID, false, false);
-    backLeft = new SwerveModule(3, 7, DriveConstants.BACK_LEFT_ENCODER_ID, false, false);
-    backRight = new SwerveModule(4, 8, DriveConstants.BACK_RIGHT_ENCODER_ID, false, false);
+    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID, false, false, DriveConstants.FRONT_LEFT_ENCODER_OFFSET);
+    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID, false, false, DriveConstants.FRONT_RIGHT_ENCODER_OFFSET);
+    backLeft = new SwerveModule(3, 7, DriveConstants.BACK_LEFT_ENCODER_ID, false, false, DriveConstants.BACK_LEFT_ENCODER_OFFSET);
+    backRight = new SwerveModule(4, 8, DriveConstants.BACK_RIGHT_ENCODER_ID, false, false, DriveConstants.BACK_RIGHT_ENCODER_OFFSET);
 
     gyro = new AHRS(SPI.Port.kMXP);
     
@@ -58,14 +56,8 @@ public class SwerveDrive extends SubsystemBase {
     getModulePosition("Front Right"), 
     getModulePosition("Back Left"), 
     getModulePosition("Back Right")};
-
-    swerveKinematics = new SwerveDriveKinematics(
-      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
-      new Translation2d(DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
-      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE),
-      new Translation2d(-DriveConstants.DIST_FROM_CENTER, DriveConstants.CENTER_ANGLE));
     
-    swerveOdometry = new SwerveDriveOdometry(swerveKinematics, gyro.getRotation2d(), positions, new Pose2d(0,0, new Rotation2d(getHeading())));
+    swerveOdometry = new SwerveDriveOdometry(DriveConstants.swerveKinematics, gyro.getRotation2d(), positions, new Pose2d(0,0, new Rotation2d(getHeading())));
 
     fieldOriented = false;
 
