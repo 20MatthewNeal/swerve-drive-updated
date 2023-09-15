@@ -58,7 +58,7 @@ public class SwerveDrive extends SubsystemBase {
     getModulePosition("Back Right")};
     
     swerveOdometry = new SwerveDriveOdometry(DriveConstants.swerveKinematics, gyro.getRotation2d(), positions, new Pose2d(0,0, new Rotation2d(getHeading())));
-
+    
     fieldOriented = false;
 
     //Resets the angle of the gyro at the beginning of run

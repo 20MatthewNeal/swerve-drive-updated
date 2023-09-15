@@ -39,10 +39,10 @@ public final class Constants {
         public static final double BASE_LENGTH = Units.inchesToMeters(29);
 
         // Encoder Offsets
-        public static final double FRONT_LEFT_ENCODER_OFFSET = 3.2;
-        public static final double FRONT_RIGHT_ENCODER_OFFSET = -3.1;
-        public static final double BACK_LEFT_ENCODER_OFFSET = 3.1; // Fix when reconnected 
-        public static final double BACK_RIGHT_ENCODER_OFFSET = -13.9;
+        public static final double FRONT_LEFT_ENCODER_OFFSET = 4.927;
+        public static final double FRONT_RIGHT_ENCODER_OFFSET = 0.13;
+        public static final double BACK_LEFT_ENCODER_OFFSET = 0.471; // Fix when reconnected 
+        public static final double BACK_RIGHT_ENCODER_OFFSET = 1.099;
 
         // Drive Properties
         public static final double DRIVE_GEAR_RATIO = 1 / 6.75;
