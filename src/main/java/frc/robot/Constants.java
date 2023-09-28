@@ -22,8 +22,8 @@ public final class Constants {
         public static final int DRIVE_JOYSTICK_ID = 0;
 
         public static final int FRONT_LEFT_ENCODER_ID = 1;
-        public static final int FRONT_RIGHT_ENCODER_ID = 3;
-        public static final int BACK_LEFT_ENCODER_ID = 0;
+        public static final int FRONT_RIGHT_ENCODER_ID = 0;
+        public static final int BACK_LEFT_ENCODER_ID = 3;
         public static final int BACK_RIGHT_ENCODER_ID = 2;
 
         public static final double MAX_DRIVE_SPEED = 14.5;

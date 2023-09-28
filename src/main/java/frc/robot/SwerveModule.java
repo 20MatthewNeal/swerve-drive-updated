@@ -75,7 +75,6 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
     rotateController.enableContinuousInput(-Math.PI, Math.PI);
     
     // lastAngle = getState().angle;
-
     resetEncoder();
 }
 
