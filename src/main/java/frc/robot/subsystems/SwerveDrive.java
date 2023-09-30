@@ -161,6 +161,13 @@ public class SwerveDrive extends SubsystemBase {
     return states;
   }
 
+  public CommandBase goToZero() {
+    return runEnd(() -> {
+      SwerveModuleState[] zeroStates = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()}; 
+      setModuleStates(zeroStates);
+    }, 
+    null);
+  }
 
   @Override
   public void initSendable(SendableBuilder sendableBuilder) {

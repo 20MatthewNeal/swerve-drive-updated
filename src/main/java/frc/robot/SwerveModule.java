@@ -133,12 +133,6 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
         SmartDashboard.putString("Swerve[" + absoluteEncoder.getChannel() + "] state", state.toString());
     }
 
-    public void setAngle(SwerveModuleState desiredAngle) {
-        Rotation2d angle = (Math.abs(desiredAngle.speedMetersPerSecond) <= DriveConstants.MAX_DRIVE_SPEED * 0.01) ? lastAngle : desiredAngle.angle;
-        rotateController.setSetpoint(angle.getRadians());
-        lastAngle = angle;
-    }
-
     public void stop() {
         driveMotor.set(0);
         rotateMotor.set(0);
