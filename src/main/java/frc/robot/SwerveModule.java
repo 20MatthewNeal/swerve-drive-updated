@@ -96,6 +96,7 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
      * @return meters / sec
      */
     public double getDriveVelocity() {
+
         return driveEncoder.getVelocity();
     }
     
@@ -110,6 +111,14 @@ public SwerveModule(int driveID, int rotateID, int magEncoderPort, boolean inver
         double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
         angle *= 2 * Math.PI;
         angle -= encoderOffset;
+
+        return angle * (absoluteEncoderReverse ? -1.0 : 1.0);
+    }
+
+    public double getOffsets() {
+        double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
+        angle *= 2 * Math.PI;
+        
         return angle * (absoluteEncoderReverse ? -1.0 : 1.0);
     }
 

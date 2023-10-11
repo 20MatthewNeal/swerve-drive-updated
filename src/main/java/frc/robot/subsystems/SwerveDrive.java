@@ -172,10 +172,10 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder sendableBuilder) {
     sendableBuilder.setSmartDashboardType("Encoder Values");
-    sendableBuilder.addDoubleProperty("Front Left", () -> frontLeft.getAbsoluteEncoderRad(), null);
-    sendableBuilder.addDoubleProperty("Front Right", () -> frontRight.getAbsoluteEncoderRad(), null);
-    sendableBuilder.addDoubleProperty("Back Left", () -> backLeft.getAbsoluteEncoderRad(), null);
-    sendableBuilder.addDoubleProperty("Back Right", () -> backRight.getAbsoluteEncoderRad(), null);
+    sendableBuilder.addDoubleProperty("Front Left", () -> frontLeft.getOffsets(), null);
+    sendableBuilder.addDoubleProperty("Front Right", () -> frontRight.getOffsets(), null);
+    sendableBuilder.addDoubleProperty("Back Left", () -> backLeft.getOffsets(), null);
+    sendableBuilder.addDoubleProperty("Back Right", () -> backRight.getOffsets(), null);
   }
 
   @Override
