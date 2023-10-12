@@ -58,7 +58,7 @@ public class DriveWithJoystick extends CommandBase {
   public void execute() {
     double xSpeed = joy.getX();
     double ySpeed = joy.getY();
-    double rotateSpeed = joy.getRawAxis(3);
+    double rotateSpeed = joy.getTwist();
 
     xSpeed = MathUtil.applyDeadband(xSpeed, 0.15);
     ySpeed = MathUtil.applyDeadband(ySpeed, 0.15);
@@ -80,6 +80,9 @@ public class DriveWithJoystick extends CommandBase {
     SmartDashboard.putNumber("Chassis x-speed", chassisSpeeds.vxMetersPerSecond);
     SmartDashboard.putNumber("Chassis y-speed", chassisSpeeds.vyMetersPerSecond);
     SmartDashboard.putNumber("Chassis rotate-speed", chassisSpeeds.omegaRadiansPerSecond);
+    SmartDashboard.putNumber("Joystick X", joy.getX());
+    SmartDashboard.putNumber("Joystick Y", joy.getY());
+    SmartDashboard.putNumber("Joystick Z", joy.getTwist());
 
   }
 
