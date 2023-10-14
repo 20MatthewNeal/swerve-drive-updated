@@ -39,11 +39,11 @@ public final class Constants {
         public static final double BASE_LENGTH = Units.inchesToMeters(29);
 
         // Encoder Offsets
-        public static final double FRONT_LEFT_ENCODER_OFFSET = 1.54;
+        public static final double FRONT_LEFT_ENCODER_OFFSET = 5.039+ 0*5.046 + (Math.PI / 2)*0;
         // public static final double FRONT_RIGHT_ENCODER_OFFSET = -5.35;
-        public static final double FRONT_RIGHT_ENCODER_OFFSET = 5.49 + (Math.PI / 2); // The angle was off ~PI-Half. This accounts for that.
-        public static final double BACK_LEFT_ENCODER_OFFSET = 1.03;
-        public static final double BACK_RIGHT_ENCODER_OFFSET = 4.28 + (Math.PI / 2); // The angle was off ~PI-Half. This accounts for that.
+        public static final double FRONT_RIGHT_ENCODER_OFFSET = 5.46 + 0*2.359 + (Math.PI / 2)*0; // The angle was off ~PI-Half. This accounts for that.
+        public static final double BACK_LEFT_ENCODER_OFFSET = 3.39 + 0*0.24 + (Math.PI / 2)*0;
+        public static final double BACK_RIGHT_ENCODER_OFFSET = 1.097 + 0*1.06 + (Math.PI / 2)*0; // The angle was off ~PI-Half. This accounts for that.
 
         // Drive Properties
         public static final double DRIVE_GEAR_RATIO = 1 / 6.75;
@@ -66,9 +66,10 @@ public final class Constants {
         public final static double CENTER_ANGLE = Math.atan((TRACK_WIDTH / 2) / (BASE_LENGTH / 2));
 
         public final static SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-            new Translation2d(BASE_LENGTH / 2, -TRACK_WIDTH / 2),
             new Translation2d(BASE_LENGTH / 2, TRACK_WIDTH / 2),
-            new Translation2d(-BASE_LENGTH / 2, -TRACK_WIDTH / 2),
-            new Translation2d(-BASE_LENGTH / 2, TRACK_WIDTH / 2));
+            new Translation2d(BASE_LENGTH / 2, -TRACK_WIDTH / 2),
+            new Translation2d(-BASE_LENGTH / 2, TRACK_WIDTH / 2),
+            new Translation2d(-BASE_LENGTH / 2, -TRACK_WIDTH / 2));
+        
     }
 }
