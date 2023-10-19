@@ -56,8 +56,9 @@ public class DriveWithJoystick extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double xSpeed = joy.getY();
-    double ySpeed = joy.getX();
+    // Don't worry about it
+    double xSpeed = joy.getY(); // this
+    double ySpeed = joy.getX(); // this
     double rotateSpeed = joy.getTwist();
 
     xSpeed = MathUtil.applyDeadband(xSpeed, 0.15);
