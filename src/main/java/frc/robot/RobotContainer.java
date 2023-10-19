@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.Constants.DriveConstants;
@@ -30,6 +31,7 @@ public class RobotContainer {
 
   private Joystick joy;
   private DriveWithJoystick driveWithJoystick;
+  private JoystickButton toggleFieldOrientedButton;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -39,6 +41,7 @@ public class RobotContainer {
     driveWithJoystick = new DriveWithJoystick(swerve, joy, swerve.getFieldOriented());
 
     swerve.setDefaultCommand(driveWithJoystick);
+    toggleFieldOrientedButton = new JoystickButton(joy, 7);
 
     SmartDashboard.putData(swerve);
     
@@ -52,7 +55,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    toggleFieldOrientedButton.whileTrue(swerve.toggleFieldOriented());
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

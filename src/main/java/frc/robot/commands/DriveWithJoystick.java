@@ -56,20 +56,20 @@ public class DriveWithJoystick extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double xSpeed = joy.getX();
-    double ySpeed = joy.getY();
+    double xSpeed = joy.getY();
+    double ySpeed = joy.getX();
     double rotateSpeed = joy.getTwist();
 
     xSpeed = MathUtil.applyDeadband(xSpeed, 0.15);
     ySpeed = MathUtil.applyDeadband(ySpeed, 0.15);
     rotateSpeed = MathUtil.applyDeadband(rotateSpeed, 0.15);
 
-    xSpeed = xLimiter.calculate(xSpeed) * (DriveConstants.MAX_DRIVE_SPEED / 4);
-    ySpeed = yLimiter.calculate(ySpeed) * (DriveConstants.MAX_DRIVE_SPEED / 4);
-    rotateSpeed = rotateLimiter.calculate(rotateSpeed) * (DriveConstants.MAX_ROTATE_SPEED / 4);
+    xSpeed = xLimiter.calculate(xSpeed) * (DriveConstants.MAX_DRIVE_SPEED /*/ 4*/);
+    ySpeed = yLimiter.calculate(ySpeed) * (DriveConstants.MAX_DRIVE_SPEED /*/ 4*/);
+    rotateSpeed = rotateLimiter.calculate(rotateSpeed) * (DriveConstants.MAX_ROTATE_SPEED) /*/ / 4 /* */;
 
     if(swerveDrive.getFieldOriented()) {
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotateSpeed, gyro.getRotation2d());      
+      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotateSpeed, swerveDrive.getGyro().getRotation2d());      
     } else {
       chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotateSpeed);
     }

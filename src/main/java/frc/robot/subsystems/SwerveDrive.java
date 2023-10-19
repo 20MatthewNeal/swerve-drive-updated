@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.SwerveModule;
@@ -44,8 +45,8 @@ public class SwerveDrive extends SubsystemBase {
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     
-    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID, false, false, DriveConstants.FRONT_LEFT_ENCODER_OFFSET);
-    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID, false, false, DriveConstants.FRONT_RIGHT_ENCODER_OFFSET);
+    frontLeft = new SwerveModule(1, 5, DriveConstants.FRONT_LEFT_ENCODER_ID, false, true, DriveConstants.FRONT_LEFT_ENCODER_OFFSET);
+    frontRight = new SwerveModule(2, 6, DriveConstants.FRONT_RIGHT_ENCODER_ID, false, true, DriveConstants.FRONT_RIGHT_ENCODER_OFFSET);
     backLeft = new SwerveModule(3, 7, DriveConstants.BACK_LEFT_ENCODER_ID, false, false, DriveConstants.BACK_LEFT_ENCODER_OFFSET);
     backRight = new SwerveModule(4, 8, DriveConstants.BACK_RIGHT_ENCODER_ID, false, false, DriveConstants.BACK_RIGHT_ENCODER_OFFSET);
 
@@ -116,6 +117,10 @@ public class SwerveDrive extends SubsystemBase {
     return Math.IEEEremainder(gyro.getAngle(), 360);
   }
 
+  public AHRS getGyro(){
+    return gyro;
+  }
+
   public Rotation2d getRotation2d() {
     return Rotation2d.fromDegrees(getHeading()); 
   }
@@ -166,7 +171,11 @@ public class SwerveDrive extends SubsystemBase {
       SwerveModuleState[] zeroStates = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()}; 
       setModuleStates(zeroStates);
     }, 
-    null);
+    ()->{});
+  }
+
+  public CommandBase toggleFieldOriented() {
+    return this.runOnce(() -> setFieldOriented());
   }
 
   @Override
@@ -176,6 +185,7 @@ public class SwerveDrive extends SubsystemBase {
     sendableBuilder.addDoubleProperty("Front Right", () -> frontRight.getOffsets(), null);
     sendableBuilder.addDoubleProperty("Back Left", () -> backLeft.getOffsets(), null);
     sendableBuilder.addDoubleProperty("Back Right", () -> backRight.getOffsets(), null);
+    //sendableBuilder.addBooleanProperty("Field Oriented", () -> getFieldOriented(), null);
   }
 
   @Override
@@ -183,5 +193,6 @@ public class SwerveDrive extends SubsystemBase {
     swerveOdometry.update(getRotation2d(), positions);
     SmartDashboard.putNumber("Robot Heading", getHeading());
     SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+    SmartDashboard.putBoolean("Field Oriented", getFieldOriented());
   }
 }
